@@ -40,8 +40,7 @@
             }
         </style>
         <span id="inputContainer">
-            <content id="input"
-                     select="input"
+            <content select="input"
                      on-click="{{handleClick}}"
                      on-input="{{handleInput}}"
                      on-keydown="{{handleKeydown}}">
@@ -50,133 +49,160 @@
                    type="text"
                    disabled
                    value="{{hintText}}"></input>
-        </span>
+    </span>
 
-        <template if="{{opened && items.length && value}}">
-            <div class="overlay"
-                 on-click="{{close}}"></div>
-            <ul class="dropdown">
-                <template repeat="{{item, index in items}}">
-                    <li class="{{ { selected: index == selectedIndex } | tokenList }}">
-                        {{item}}
-                    </li>
-                </template>
-            </ul>
-        </template>
-
+    <template if="{{opened && items.length && value}}">
+        <div class="overlay"
+             on-click="{{close}}"></div>
+        <ul class="dropdown">
+            <template repeat="{{item, index in items}}">
+                <li class="{{ { selected: index == selectedIndex } | tokenList }}">
+                    {{item}}
+                </li>
+            </template>
+        </ul>
     </template>
-    <script type="application/javascript">
-        (function() {
-            'use strict';
 
-            Polymer('lazy-autosuggest', {
-                publish: {
-                    opened: false,
+</template>
+<script type="application/javascript">
+    (function() {
+        'use strict';
 
-                    items: [],
+        Polymer('lazy-autosuggest', {
+            publish: {
+                opened: false,
 
-                    selectedIndex: 0,
+                items: [],
 
-                    value: '',
+                selectedIndex: 0,
 
-                    hintText: ''
-                },
+                value: '',
 
-                open: function() {
-                    this.opened = true;
-                },
+                hintText: ''
+            },
 
-                close: function() {
-                    this.opened = false;
-                },
+            open: function() {
+                this.opened = true;
+            },
 
-                selectPrevious: function() {
-                    this.selectedIndex = Math.max(this.selectedIndex - 1, 0);
-                },
+            close: function() {
+                this.opened = false;
+            },
 
-                selectNext: function() {
-                    this.selectedIndex = Math.min(this.selectedIndex + 1, this.items.length - 1);
-                },
+            selectPrevious: function() {
+                this.selectedIndex = Math.max(this.selectedIndex - 1, 0);
+            },
 
-                selectAdjacent: function(next) {
-                    if(next) {
-                        this.selectNext();
-                    } else {
-                        this.selectPrevious();
-                    }
-                },
+            selectNext: function() {
+                this.selectedIndex = Math.min(this.selectedIndex + 1, this.items.length - 1);
+            },
 
-                domReady: function() {
-                    var input = this.$.input;
+            selectAdjacent: function(next) {
+                if(next) {
+                    this.selectNext();
+                } else {
+                    this.selectPrevious();
+                }
+            },
 
-                    if(!input) {
-                        throw Error('Must provide an input to lazy-autosuggest.');
-                    }
+            domReady: function() {
+                var input = this.querySelector('input');
 
-                    if(input.value) {
-                        this.value = input.value;
-                        this.fireInputChange();
-                    }
+                if(!input) {
+                    throw Error('Must provide an input to lazy-autosuggest.');
+                }
 
-                    if(input === document.activeElement) {
-                        this.open();
-                    }
-                },
-
-                updateHint: function() {
-                    var item = this.items[this.selectedIndex],
-                        inputHint = this.$.inputHint;
-
-                    if(this.opened && this.value && item && item.indexOf(this.value) === 0) {
-                        this.hintText = item;
-                    } else {
-                        this.hintText = '';
-                    }
-                },
-
-                openedChanged: function() {
-                    this.updateHint();
-                },
-
-                valueChanged: function() {
-                    this.updateHint();
-                },
-
-                selectedIndexChanged: function() {
-                    this.updateHint();
-                },
-
-                fireInputChange: function() {
-                    this.fire('inputChange', {
-                        value: this.value
-                    });
-                },
-
-                handleInput: function(e) {
-                    this.value = e.target.value;
-                    this.open();
+                if(input.value) {
+                    this.value = input.value;
                     this.fireInputChange();
+                }
 
-                    e.stopPropagation();
-                },
-
-                handleKeydown: function(e) {
-                    switch(e.keyCode) {
-                        case 27: // esc
-                            this.close();
-                            break;
-                        case 38: // up arrow
-                        case 40: // down arrow
-                            this.selectAdjacent(e.keyCode === 40);
-                            e.preventDefault();
-                            break;
-                    }
-                },
-
-                handleClick: function() {
+                if(input === document.activeElement) {
                     this.open();
                 }
-            });
-        })();
-    </script>
+
+                this.input = input;
+            },
+
+            updateHint: function() {
+                var item = this.items[this.selectedIndex],
+                    inputHint = this.$.inputHint;
+
+                if(this.opened && this.value && item && item.indexOf(this.value) === 0) {
+                    this.hintText = item;
+                } else {
+                    this.hintText = '';
+                }
+            },
+
+            openedChanged: function(newVal, oldVal) {
+                this.updateHint();
+            },
+
+            valueChanged: function() {
+                this.updateHint();
+            },
+
+            selectedIndexChanged: function() {
+                this.updateHint();
+            },
+
+            fireInputChange: function() {
+                this.fire('inputChange', {
+                    value: this.value
+                });
+            },
+
+            handleInput: function(e) {
+                this.value = e.target.value;
+                this.open();
+                this.fireInputChange();
+
+                e.stopPropagation();
+            },
+
+            handleTab: function(e) {
+                var item = this.items[this.selectedIndex],
+                    input = this.input;
+
+                if(this.hintText) {
+                    this.value = input.value = item;
+                    this.fireInputChange();
+                    e.preventDefault();
+                }
+            },
+
+            handleKeydown: function(e) {
+                var handled = false;
+
+                switch(e.keyCode) {
+                    case 9: // tab
+                        this.handleTab(e);
+                        handled = true;
+                        break;
+                    case 13: //enter
+                        break;
+                    case 27: // esc
+                        this.close(e);
+                        handled = true;
+                        break;
+                    case 38: // up arrow
+                    case 40: // down arrow
+                        this.selectAdjacent(e.keyCode === 40);
+                        handled = true;
+                        break;
+                }
+
+                if(handled) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                }
+            },
+
+            handleClick: function() {
+                this.open();
+            }
+        });
+    })();
+</script>
 </polymer-element>
