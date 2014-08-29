@@ -30,7 +30,20 @@
     <body>
         <h1><a href="http://github.com/sparhami/lazy-autosuggest">&lt;lazy-autosuggest&gt;</a></h1>
         <h2>A Polymer autosuggest element</h2>
-        <!-- Using Custom Elements -->
+        <p>
+            The element definition is not loaded on page load. Instead, this
+            page will load the definition when you hover (or focus) the input
+            box.
+        </p>
+        <p>
+            There is a latency of 300ms simulated by delaying the load of the
+            page.
+        </p>
+        <p>
+            <em>Note:</em> This page does not seem to work with the import
+            polyfill since it does not appear to process link tags added
+            after page load.
+        </p>
 
         <lazy-autosuggest id="autosuggest">
             <input type="text" />

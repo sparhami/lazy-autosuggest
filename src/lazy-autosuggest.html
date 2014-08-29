@@ -40,8 +40,16 @@
             }
         </style>
         <span id="inputContainer">
-            <content id="input" select="input"></content>
-            <input class="inputHint" type="text" disabled value="{{hintText}}"></input>
+            <content id="input"
+                     select="input"
+                     on-click="{{handleClick}}"
+                     on-input="{{handleInput}}"
+                     on-keydown="{{handleKeydown}}">
+            </content>
+            <input class="inputHint"
+                   type="text"
+                   disabled
+                   value="{{hintText}}"></input>
         </span>
 
         <template if="{{opened && items.length && value}}">
@@ -105,10 +113,6 @@
                         throw Error('Must provide an input to lazy-autosuggest.');
                     }
 
-                    input.addEventListener('click', this.handleClick.bind(this));
-                    input.addEventListener('input', this.handleInput.bind(this));
-                    input.addEventListener('keydown', this.handleKeydown.bind(this));
-
                     if(input.value) {
                         this.value = input.value;
                         this.fireInputChange();
@@ -164,6 +168,7 @@
                         case 38: // up arrow
                         case 40: // down arrow
                             this.selectAdjacent(e.keyCode === 40);
+                            e.preventDefault();
                             break;
                     }
                 },
