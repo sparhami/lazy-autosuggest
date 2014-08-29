@@ -33,16 +33,18 @@
         <p>
             The element definition is not loaded on page load. Instead, this
             page will load the definition when you hover (or focus) the input
-            box.
+            box using JavaScript. The element will make sure to open and cause
+            the appropriate suggestions event if there is something typed prior
+            to the element being upgraded.
         </p>
         <p>
             There is a latency of 300ms simulated by delaying the load of the
             page.
         </p>
         <p>
-            <em>Note:</em> This page does not seem to work with the import
-            polyfill since it does not appear to process link tags added
-            after page load.
+            <em>Note:</em> This page does not work with the import polyfill
+            since it does not process link tags added after page load. Use
+            the latest Chrome to try it out.
         </p>
 
         <lazy-autosuggest id="autosuggest">
