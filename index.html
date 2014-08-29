@@ -37,8 +37,9 @@
             to the element being upgraded.
         </p>
         <p>
-            There is a latency of 300ms simulated by delaying the load of the
-            page.
+            There is an additional latency of <strong>300ms</strong> simulated by delaying
+            the load of the &lt;lazy-autosuggest&gt; compontent so that you can get a
+            feel for how it acts in an non-ideal environment.
         </p>
         <p>
             <em>Note:</em> This page does not work with the import polyfill
@@ -52,7 +53,9 @@
 
         <script>
             (function() {
-                var autosuggestInput = document.querySelector('#autosuggest input'),
+                var ADDITIONAL_LATENCY = 300,
+                    MAX_ITEMS = 3,
+                    autosuggestInput = document.querySelector('#autosuggest input'),
                     items = [
                         'one',
                         'two',
@@ -72,7 +75,9 @@
                         'seventy',
                         'eighty',
                         'ninty',
-                        'one hundred'
+                        'one hundred',
+                        'two hundered',
+                        'three hundred'
                     ];
 
                 autosuggest.addEventListener('inputChange', function(e) {
@@ -80,7 +85,7 @@
                         .filter(function(value) {
                             return value.indexOf(e.detail.value) === 0;
                         })
-                        .slice(0, 4);
+                        .slice(0, MAX_ITEMS);
                 });
 
                 function loadDef() {
@@ -94,7 +99,7 @@
                         link.href = 'src/lazy-autosuggest.html';
 
                         document.querySelector('head').appendChild(link);
-                    }, 300);
+                    }, ADDITIONAL_LATENCY);
                 }
 
                 autosuggestInput.addEventListener('mouseenter', loadDef);
