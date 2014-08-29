@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>&lt;lazy-autosuggest&gt;</title>
+
+        <!-- Importing Web Component's Polyfill -->
+        <script src="bower_components/platform/platform.js"></script>
+
+        <link rel="import" href="bower_components/polymer/polymer.html">
+
+        <!-- Importing Custom Elements -->
+        <!-- <link rel="import" href="src/lazy-autosuggest.html"> -->
+
+        <style>
+            lazy-autosuggest input {
+                margin: 0;
+            }
+
+            lazy-autosuggest input,
+            lazy-autosuggest::shadow .dropdown {
+                border: 1px solid #aaa;
+            }
+
+            lazy-autosuggest::shadow .selected {
+                background-color: #e2e2e2;
+            }
+        </style>
+    </head>
+    <body>
+        <h1><a href="http://github.com/sparhami/lazy-autosuggest">&lt;lazy-autosuggest&gt;</a></h1>
+        <h2>A Polymer autosuggest element</h2>
+        <!-- Using Custom Elements -->
+
+        <lazy-autosuggest id="autosuggest">
+            <input type="text" />
+        </lazy-autosuggest>
+
+        <script>
+            (function() {
+                var autosuggestInput = document.querySelector('#autosuggest input'),
+                    items = [
+                        'one',
+                        'two',
+                        'three',
+                        'four',
+                        'five',
+                        'six',
+                        'seven',
+                        'eight',
+                        'nine',
+                        'ten',
+                        'twenty',
+                        'thirty',
+                        'forty',
+                        'fifty',
+                        'sixty',
+                        'seventy',
+                        'eighty',
+                        'ninty',
+                        'one hundred'
+                    ];
+
+                autosuggest.addEventListener('inputChange', function(e) {
+                    autosuggest.items = items
+                        .filter(function(value) {
+                            return value.indexOf(e.detail.value) === 0;
+                        })
+                        .slice(0, 4);
+                });
+
+                function loadDef() {
+                    autosuggestInput.removeEventListener('mouseenter', loadDef);
+                    autosuggestInput.removeEventListener('focus', loadDef);
+
+                    // Simulate a loading latency of 300ms
+                    setTimeout(function() {
+                        var link = document.createElement('link');
+                        link.rel = 'import';
+                        link.href = 'src/lazy-autosuggest.html';
+
+                        document.querySelector('head').appendChild(link);
+                    }, 300);
+                }
+
+                autosuggestInput.addEventListener('mouseenter', loadDef);
+                autosuggestInput.addEventListener('focus', loadDef);
+            })();
+        </script>
+    </body>
+</html>

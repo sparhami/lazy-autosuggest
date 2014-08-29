@@ -1,0 +1,177 @@
+<polymer-element name="lazy-autosuggest"
+                 attributes="opened"
+                 on-keydown="{{open}}">
+    <template>
+        <style>
+            :host {
+                position: relative;
+            }
+
+            :host > ul {
+                margin: 0;
+                padding: 0;
+                list-style-type: none;
+            }
+
+            :host > .dropdown {
+                position: absolute;
+                left: 0;
+                right: 0;
+            }
+
+            :host > .overlay {
+                position: fixed;
+                left: 0;
+                right: 0;
+                top: 0;
+                bottom: 0;
+            }
+
+            :host .inputHint {
+                position: absolute;
+                top: -1px;
+                left: -1px;
+
+                border-style: none;
+                background-color: transparent;
+
+                opacity: 0.6;
+                pointer-events: none;
+            }
+        </style>
+        <span id="inputContainer">
+            <content id="input" select="input"></content>
+            <input class="inputHint" type="text" disabled value="{{hintText}}"></input>
+        </span>
+
+        <template if="{{opened && items.length && value}}">
+            <div class="overlay"
+                 on-click="{{close}}"></div>
+            <ul class="dropdown">
+                <template repeat="{{item, index in items}}">
+                    <li class="{{ { selected: index == selectedIndex } | tokenList }}">
+                        {{item}}
+                    </li>
+                </template>
+            </ul>
+        </template>
+
+    </template>
+    <script type="application/javascript">
+        (function() {
+            'use strict';
+
+            Polymer('lazy-autosuggest', {
+                publish: {
+                    opened: false,
+
+                    items: [],
+
+                    selectedIndex: 0,
+
+                    value: '',
+
+                    hintText: ''
+                },
+
+                open: function() {
+                    this.opened = true;
+                },
+
+                close: function() {
+                    this.opened = false;
+                },
+
+                selectPrevious: function() {
+                    this.selectedIndex = Math.max(this.selectedIndex - 1, 0);
+                },
+
+                selectNext: function() {
+                    this.selectedIndex = Math.min(this.selectedIndex + 1, this.items.length - 1);
+                },
+
+                selectAdjacent: function(next) {
+                    if(next) {
+                        this.selectNext();
+                    } else {
+                        this.selectPrevious();
+                    }
+                },
+
+                domReady: function() {
+                    var input = this.$.input;
+
+                    if(!input) {
+                        throw Error('Must provide an input to lazy-autosuggest.');
+                    }
+
+                    input.addEventListener('click', this.handleClick.bind(this));
+                    input.addEventListener('input', this.handleInput.bind(this));
+                    input.addEventListener('keydown', this.handleKeydown.bind(this));
+
+                    if(input.value) {
+                        this.value = input.value;
+                        this.fireInputChange();
+                    }
+
+                    if(input === document.activeElement) {
+                        this.open();
+                    }
+                },
+
+                updateHint: function() {
+                    var item = this.items[this.selectedIndex],
+                        inputHint = this.$.inputHint;
+
+                    if(this.opened && this.value && item && item.indexOf(this.value) === 0) {
+                        this.hintText = item;
+                    } else {
+                        this.hintText = '';
+                    }
+                },
+
+                openedChanged: function() {
+                    this.updateHint();
+                },
+
+                valueChanged: function() {
+                    this.updateHint();
+                },
+
+                selectedIndexChanged: function() {
+                    this.updateHint();
+                },
+
+                fireInputChange: function() {
+                    this.fire('inputChange', {
+                        value: this.value
+                    });
+                },
+
+                handleInput: function(e) {
+                    this.value = e.target.value;
+                    this.open();
+                    this.fireInputChange();
+
+                    e.stopPropagation();
+                },
+
+                handleKeydown: function(e) {
+                    switch(e.keyCode) {
+                        case 27: // esc
+                            this.close();
+                            break;
+                        case 38: // up arrow
+                        case 40: // down arrow
+                            this.selectAdjacent(e.keyCode === 40);
+                            break;
+                    }
+                },
+
+                handleClick: function() {
+                    this.open();
+                }
+            });
+        })();
+    </script>
+</polymer-element>
