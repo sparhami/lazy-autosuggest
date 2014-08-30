@@ -80,9 +80,11 @@
                     ];
 
                 autosuggest.addEventListener('inputChange', function(e) {
+                    var lowercaseValue = e.detail.value.toLowerCase();
+
                     autosuggest.items = items
                         .filter(function(value) {
-                            return value.indexOf(e.detail.value) === 0;
+                            return value.toLowerCase().indexOf(lowercaseValue) === 0;
                         })
                         .slice(0, MAX_ITEMS);
                 });

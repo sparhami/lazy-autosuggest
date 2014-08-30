@@ -126,10 +126,11 @@
 
             updateHint: function() {
                 var item = this.items[this.selectedIndex],
-                    inputHint = this.$.inputHint;
+                    inputHint = this.$.inputHint,
+                    startsWithValue = item && item.toLowerCase().indexOf(this.value.toLowerCase()) === 0;
 
-                if(this.opened && this.value && item && item.indexOf(this.value) === 0) {
-                    this.hintText = item;
+                if(this.opened && this.value && startsWithValue) {
+                    this.hintText = this.value + item.substring(this.value.length);
                 } else {
                     this.hintText = '';
                 }
