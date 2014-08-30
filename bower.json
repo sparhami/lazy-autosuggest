@@ -5,8 +5,10 @@
     "sparhami <sepandparhami@gmail.com>"
   ],
   "description": "A auto suggestion component written in Polymer",
+  "keywords": "Polymer, web-components, autosuggest",
   "license": "MIT",
-  "private": true,
+  "homepage": "https://github.com/sparhami/lazy-autosuggest",
+  "private": false,
   "ignore": [
     "**/.*",
     "node_modules",
