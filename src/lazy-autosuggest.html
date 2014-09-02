@@ -48,162 +48,162 @@
             <input class="inputHint"
                    type="text"
                    disabled
-                   value="{{hintText}}"></input>
-    </span>
+                   value="{{hintText}}" />
+        </span>
 
-    <template if="{{opened && items.length && value}}">
-        <div class="overlay"
-             on-click="{{close}}"></div>
-        <ul class="dropdown">
-            <template repeat="{{item, index in items}}">
-                <li class="{{ { selected: index == selectedIndex } | tokenList }}">
-                    {{item}}
-                </li>
-            </template>
-        </ul>
+        <template if="{{opened && items.length && value}}">
+            <div class="overlay"
+                 on-click="{{close}}"></div>
+            <ul class="dropdown">
+                <template repeat="{{item, index in items}}">
+                    <li class="{{ { selected: index == selectedIndex } | tokenList }}">
+                        {{item}}
+                    </li>
+                </template>
+            </ul>
+        </template>
+
     </template>
+    <script type="application/javascript">
+        (function() {
+            'use strict';
 
-</template>
-<script type="application/javascript">
-    (function() {
-        'use strict';
+            Polymer('lazy-autosuggest', {
+                publish: {
+                    opened: false,
 
-        Polymer('lazy-autosuggest', {
-            publish: {
-                opened: false,
+                    items: [],
 
-                items: [],
+                    selectedIndex: 0,
 
-                selectedIndex: 0,
+                    value: '',
 
-                value: '',
+                    hintText: ''
+                },
 
-                hintText: ''
-            },
+                open: function() {
+                    this.opened = true;
+                },
 
-            open: function() {
-                this.opened = true;
-            },
+                close: function() {
+                    this.opened = false;
+                },
 
-            close: function() {
-                this.opened = false;
-            },
+                selectPrevious: function() {
+                    this.selectedIndex = Math.max(this.selectedIndex - 1, 0);
+                },
 
-            selectPrevious: function() {
-                this.selectedIndex = Math.max(this.selectedIndex - 1, 0);
-            },
+                selectNext: function() {
+                    this.selectedIndex = Math.min(this.selectedIndex + 1, this.items.length - 1);
+                },
 
-            selectNext: function() {
-                this.selectedIndex = Math.min(this.selectedIndex + 1, this.items.length - 1);
-            },
+                selectAdjacent: function(next) {
+                    if(next) {
+                        this.selectNext();
+                    } else {
+                        this.selectPrevious();
+                    }
+                },
 
-            selectAdjacent: function(next) {
-                if(next) {
-                    this.selectNext();
-                } else {
-                    this.selectPrevious();
-                }
-            },
+                domReady: function() {
+                    var input = this.querySelector('input');
 
-            domReady: function() {
-                var input = this.querySelector('input');
+                    if(!input) {
+                        throw Error('Must provide an input to lazy-autosuggest.');
+                    }
 
-                if(!input) {
-                    throw Error('Must provide an input to lazy-autosuggest.');
-                }
+                    if(input.value) {
+                        this.value = input.value;
+                        this.fireInputChange();
+                    }
 
-                if(input.value) {
-                    this.value = input.value;
+                    if(input === document.activeElement) {
+                        this.open();
+                    }
+
+                    this.input = input;
+                },
+
+                updateHint: function() {
+                    var item = this.items[this.selectedIndex],
+                        inputHint = this.$.inputHint,
+                        startsWithValue = item && item.toLowerCase().indexOf(this.value.toLowerCase()) === 0;
+
+                    if(this.opened && this.value && startsWithValue) {
+                        this.hintText = this.value + item.substring(this.value.length);
+                    } else {
+                        this.hintText = '';
+                    }
+                },
+
+                openedChanged: function(newVal, oldVal) {
+                    this.updateHint();
+                },
+
+                valueChanged: function() {
+                    this.updateHint();
+                },
+
+                selectedIndexChanged: function() {
+                    this.updateHint();
+                },
+
+                fireInputChange: function() {
+                    this.fire('inputChange', {
+                        value: this.value
+                    });
+                },
+
+                handleInput: function(e) {
+                    this.value = e.target.value;
+                    this.open();
                     this.fireInputChange();
-                }
 
-                if(input === document.activeElement) {
+                    e.stopPropagation();
+                },
+
+                handleTab: function(e) {
+                    var item = this.items[this.selectedIndex],
+                        input = this.input;
+
+                    if(this.hintText) {
+                        this.value = input.value = item;
+                        this.fireInputChange();
+                        e.preventDefault();
+                    }
+                },
+
+                handleKeydown: function(e) {
+                    var handled = false;
+
+                    switch(e.keyCode) {
+                        case 9: // tab
+                            this.handleTab(e);
+                            handled = true;
+                            break;
+                        case 13: //enter
+                            break;
+                        case 27: // esc
+                            this.close(e);
+                            handled = true;
+                            break;
+                        case 38: // up arrow
+                        case 40: // down arrow
+                            this.selectAdjacent(e.keyCode === 40);
+                            handled = true;
+                            break;
+                    }
+
+                    if(handled) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                    }
+                },
+
+                handleClick: function() {
                     this.open();
                 }
-
-                this.input = input;
-            },
-
-            updateHint: function() {
-                var item = this.items[this.selectedIndex],
-                    inputHint = this.$.inputHint,
-                    startsWithValue = item && item.toLowerCase().indexOf(this.value.toLowerCase()) === 0;
-
-                if(this.opened && this.value && startsWithValue) {
-                    this.hintText = this.value + item.substring(this.value.length);
-                } else {
-                    this.hintText = '';
-                }
-            },
-
-            openedChanged: function(newVal, oldVal) {
-                this.updateHint();
-            },
-
-            valueChanged: function() {
-                this.updateHint();
-            },
-
-            selectedIndexChanged: function() {
-                this.updateHint();
-            },
-
-            fireInputChange: function() {
-                this.fire('inputChange', {
-                    value: this.value
-                });
-            },
-
-            handleInput: function(e) {
-                this.value = e.target.value;
-                this.open();
-                this.fireInputChange();
-
-                e.stopPropagation();
-            },
-
-            handleTab: function(e) {
-                var item = this.items[this.selectedIndex],
-                    input = this.input;
-
-                if(this.hintText) {
-                    this.value = input.value = item;
-                    this.fireInputChange();
-                    e.preventDefault();
-                }
-            },
-
-            handleKeydown: function(e) {
-                var handled = false;
-
-                switch(e.keyCode) {
-                    case 9: // tab
-                        this.handleTab(e);
-                        handled = true;
-                        break;
-                    case 13: //enter
-                        break;
-                    case 27: // esc
-                        this.close(e);
-                        handled = true;
-                        break;
-                    case 38: // up arrow
-                    case 40: // down arrow
-                        this.selectAdjacent(e.keyCode === 40);
-                        handled = true;
-                        break;
-                }
-
-                if(handled) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                }
-            },
-
-            handleClick: function() {
-                this.open();
-            }
-        });
-    })();
-</script>
+            });
+        })();
+    </script>
 </polymer-element>
