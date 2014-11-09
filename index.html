@@ -12,13 +12,15 @@
         <!-- <link rel="import" href="src/lazy-autosuggest.html"> -->
 
         <style>
-            lazy-autosuggest input {
-                margin: 0;
-            }
-
+            
             lazy-autosuggest input,
-            lazy-autosuggest::shadow .dropdown {
+            lazy-autosuggest::shadow .dropdown,
+            lazy-autosuggest::shadow .inputHint {
                 border: 1px solid #aaa;
+            }
+            
+            lazy-autosuggest::shadow .dropdown {
+                background-color: white;
             }
 
             lazy-autosuggest::shadow .selected {
